@@ -1,0 +1,174 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\title{Distributed MPC for Cooperative Aerial Support of a Flexible Membrane under Dynamic Load}
+\author{Luca Vignola}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{Abstract}
+
+We propose to investigate distributed control strategies for a team of drones collaboratively supporting a flexible membrane, such as a rescue net. The system is subject to sudden dynamic loads—e.g., the impact of a falling mass—which introduces significant disturbances to the membrane's shape and the drones’ equilibrium. The goal of the project is to model the coupled dynamics of the drone-membrane system and evaluate different distributed control methods(such as consensus, distributed model predictive control (DMPC), energy based control?, dissipativity?  etc)  for real-time reconfiguration and load balancing.
+
+
+
+\section{Motivation}
+Quello che pensavo era droni disposti in una formazione circolare, che sostengono una rete/membrana, utili ad esempio per missioni di salvataggio dei pompieri(gatto che cade da un albero, persona che si butta dal quarto piano per scappare da un incendio, etc). Se una massa si butta su una rete a quella velocità perturba molto l'equilibrio dei droni e quindi il nostro problema potrebbe essere quello di riportare i droni all'equilibrio. \\
+Cercando nella letteratura ho trovato parecchio sul trasporto di loads tramite droni ma si tratta appunto principalmente di trasporto(spesso ad esempio di un carico sostenuto da cavi), che mi sembra parecchio diverso da un problema simile a quello descritto sopra in cui i droni si devono adattare per ritrovare l'equilibrio a seguito della caduta della massa sulla membrana/telo. Nello specifico non ho trovato quasi nulla (forse perche l'idea è una cagata?), o comunque non distribuito(bisogna pero' cercare meglio per evitare di copiare qualcuno inconsciamente). \\
+ Inoltre, il pretesto che potrebbe fornire una motivation per giustificare il passaggio ad un approccio distribuito è proprio il fatto che il feneomeno descritto accade molto in fretta quindi i droni non farebbero in tempo a comunicare).
+\paragraph{}
+Flexible cooperative systems are increasingly important in applications where soft structures interact with agents in motion. A particularly relevant case is the aerial deployment of fabric-like materials by multiple UAVs for safety, rescue, or cargo purposes. While multi-drone load transport via cables is well studied, distributed control of UAVs supporting deformable membranes under external disturbances remains largely unexplored.
+
+
+
+\section{Related Work}
+
+\vspace{-0.2cm}
+Di seguito alcuni articoli che mi sono sembrati collegati/rilevanti(ho letto solo gli abstract quindi alcuni potrebbero essere random. Poi ci sarà da cercare mooolto di piu')
+\begin{itemize}
+     \item \textbf{Montenegro et al., 2019}, \emph{A concept for catching drones with a net carried by cooperative UAVs} \\
+   Questo è l'unico articol che ho trovato che parla di una rete/membrana anche se la usa per uno scopo diverso. Comunque molto simile quindi potrebbe essere utile\\
+    Link: \href{https://www.researchgate.net/publication/336088594_A_concept_for_catching_drones_with_a_net_carried_by_cooperative_UAVs}{prova}
+    
+     \item \textbf{Thapa et al., 2019}, \emph{Cooperative Aerial Manipulation with Decentralized Adaptive Force-Consensus Control} \\
+    "L’articolo esplora il controllo cooperativo di manipolazione aerea utilizzando un controllo decentralizzato basato sul consenso adattivo delle forze." Se veramente parla di consenus potrebbe essere utile visto che è un argomento del corso \\
+    Link: \href{https://link.springer.com/article/10.1007/s10846-019-01048-4?utm_source=chatgpt.com}{arxiv.org/abs/1810.00522}
+    
+     \item \textbf{Cotsakis et al., 2018}, \emph{Collaborative Fabric Transport with Micro-UAVs} \\
+    This work models and experiments with teams of quadrotors lifting fabric sheets. While focused on transportation rather than disturbance rejection, it is one of the few studies addressing flexible payloads. \\
+    Link: \href{https://arxiv.org/abs/1810.00522}{arxiv.org/abs/1810.00522}
+    
+     \item \textbf{Raffaello d'andrea 2013}, \emph{Carrying a flexible payload with multiple flying vehicles} \\
+  L'unico articolo che ho trovato su un carico flessibile ma comunque è molto diverso dal nostro problema, sembra semplicemente un anello flessibile trasportato direttamente dai droni ma il focus è piu sulla meccanica/dinamica del carico flessibile e non sul controllo distribuito \\
+    Link: \href{https://www.researchgate.net/publication/261353164_Carrying_a_flexible_payload_with_multiple_flying_vehicles}{prova}
+
+   \end{itemize}
+   
+   Di seguito invece tutta una serie di articoli che sono piu interessati al trasporto di payloads, ma da cui magari possiamo trarre spunto per i controllori
+  \begin{itemize}
+     \item \textbf{Ravell et al., 2024}, \emph{Control and real-time experiments for a multi-agent aerial transportation system} \\
+   Questo studio presenta un sistema in cui più droni trasportano un carico sospeso tramite cavi, utilizzando un controllo gerarchico basato su funzioni di energia di tipo Lyapunov \\
+    Link: \href{https://link.springer.com/article/10.1007/s40430-024-05166-5?utm_source=chatgpt.com}{arxiv.org/abs/1810.00522}
+       
+    \item \textbf{Li and Loianno, 2023}, \emph{Aerial Fabric Manipulation with Nonlinear MPC} \\
+    This recent work uses nonlinear MPC for controlling drones manipulating fabric payloads(sospesi tramite cavi). It focuses on trajectory tracking rather than reaction to dynamic perturbations. Inoltre da quello che ho capito usa un solo NMPC centralizzato invece che distribuito. \\
+    Link: \href{https://arxiv.org/abs/2303.06165}{arxiv.org/abs/2303.06165}
+    
+    \item \textbf{Zhou et al., 2022}, \emph{Distributed MPC for Cooperative UAV Load Transport} \\
+    Proposes a distributed MPC framework for UAVs connected to a rigid payload. Provides useful techniques for consensus and prediction under communication constraints. \\
+    Link: \href{https://ieeexplore.ieee.org/document/9706163}{ieeexplore.ieee.org/document/9706163}
+    
+    \item \textbf{Saska et al., 2017}, \emph{Coordination and Navigation of Heterogeneous UAVs} \\
+    Though more general, this work offers insights into distributed coordination under limited communication and partially coupled dynamics. \\
+    Link: \href{https://ieeexplore.ieee.org/document/7944595}{ieeexplore.ieee.org/document/7944595}
+    
+     \item \textbf{Kotaru et al., 2019}, \emph{Multiple quadrotors carrying a flexible hose: dynamics, differential flatness and control} \\
+    Questo lavoro modella un sistema in cui più quadrotori trasportano un tubo flessibile, analizzando la dinamica e proponendo un controllo basato sulla linearizzazione. \\
+    Link: \href{https://arxiv.org/abs/1911.12650?utm_source=chatgpt.com}{ieeexplore.ieee.org/document/7944595}
+    
+     \item \textbf{Tan et al., 2018}, \emph{Cooperative control of multiple unmanned aerial systems for heavy duty carrying} \\
+    . Here, we propose a general method that can be used to optimise the control authority of a UAV team in the case where the agents are rigidly mounted to the payload \\
+    Link: \href{https://www.sciencedirect.com/science/article/abs/pii/S1367578818300221}{ieeexplore.ieee.org/document/7944595}
+    
+     \item \textbf{Chen et al., 2024}, \emph{Cooperative Load Transportation of Multi-Drones Based on Disturbance Observer and Formation Control} \\
+   The study delves into the complexities of multi-drone cargo transportation, focusing on the stability of transported goods. . \\
+    Link: \href{https://ieeexplore.ieee.org/document/10540584}{ieeexplore.ieee.org/document/7944595}
+    
+\end{itemize}
+
+\section{System Modeling}
+
+We model the membrane as a discrete mass-spring-damper system in 2D or 3D, where:
+
+\begin{itemize}
+    \item Nodes represent mass points;
+    \item Edges represent elastic and damping connections (springs);
+    \item Edge nodes are directly connected to drones;
+    \item External mass is added as a force on one or more central nodes.
+\end{itemize}
+
+\subsection*{Dynamics of Membrane Nodes}
+For a node $i$ with neighbors $j \in \mathcal{N}(i)$:
+
+\begin{equation}
+m_i \ddot{x}_i = -\sum_{j \in \mathcal{N}(i)} k_{ij}(x_i - x_j) - c_{ij}(\dot{x}_i - \dot{x}_j) + f_i
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $m_i$: mass of node $i$
+    \item $k_{ij}$: spring constant
+    \item $c_{ij}$: damping coefficient
+    \item $f_i$: external forces (e.g. due to falling mass or drone)
+\end{itemize}
+
+Each drone's position influences its connected node directly. 
+\paragraph{}
+Attenzione: queste equazioni descriveranno la dinamica di ogni nodo della rete/membrana, ma non credo serva che l'MPC le conosca, potrebbero servire solo nel simulatore per simulare la fisica del problema mentre l'MPC si accorge delle forze esercitate dalla rete e dalla massa solo tramite l'interazione con il nodo della rete a cui è attaccato. Oppure in alternativa facciamo che l'mpc conosce anche tutta la dinamica della rete e allora il problema diventa ancora piu facile(credo)
+
+\section{Distributed Model Predictive Control}
+
+\subsection*{Drone Dynamics}
+
+We assume simplified second-order dynamics(addirittura potremmo assumere che il control input u sia direttamente la posizione 3d del drone puntiforme):
+
+\begin{equation}
+\ddot{\mathbf{p}}_i = \mathbf{u}_i
+\end{equation}
+
+\subsection*{MPC Formulation for Drone $i$}
+
+Questo potrebbe essere un primo esempio di un costo per l'MPC problem at each time step:
+
+\begin{equation}
+\min_{\mathbf{u}_i} \sum_{k=0}^{N} \left( 
+\|\mathbf{p}_i(t+k) - \mathbf{p}_i^{ref}(t+k)\|^2 + 
+\lambda \|\mathbf{u}_i(t+k)\|^2 +
+\alpha \sum_{j \in \mathcal{N}_i} \|\mathbf{p}_i(t+k) - \mathbf{p}_j(t+k)\|^2
+\right)
+\end{equation}
+
+\begin{itemize}
+    \item $\mathbf{p}_i^{ref}$ is the ideal position to maintain membrane shape;
+    \item $\mathcal{N}_i$ are neighboring drones (communication graph);
+    \item The third term promotes consensus and coordinated adjustment.
+\end{itemize}
+
+Communication among neighbors can be synchronous or follow an asynchronous DMPC scheme.
+
+\section{Simulation Plan}
+La simulazione potrebbe essere la parte piu difficile, pero secondo me qualcosa di gia fatto si trova, soprattutto perche i droni multiagente e anche quelli che trasportano un carico sembrano un topic abbastanza diffuso. \\
+Anche se non si trovasse niente di gia fatto penso che se si semplifica un po il modello(ad esempio droni puntiformi etc...) potremmo quasi implementare noi una piccola simulazione(librerie che potrebbero tornare utili: PyBullet,CoppeliaSim, Gazebo, sing NumPy/SciPy for membrane dynamics \\
+Ad esempio, la repository GitHub “multi-agent-cloth-control”,  offre una simulazione di controllo multi-agente per la manipolazione di un telo:  \href{https://github.com/nachocz/multi-agent-cloth-control?utm_source=chatgpt.com} \\
+Poi per l'implementazione dell'mpc in alternativa a yalmip potremmo provare anche \textbf{CasADi} che penso sia piu usato nella pratica(anche in advanced MPC).
+
+
+\subsection*{Steps}
+
+\begin{enumerate}
+    \item Implement mass-spring membrane and simulate baseline deformation.
+    \item Add falling mass input and observe resulting dynamics.
+    \item Implement single-agent MPC and test local stabilization.
+    \item Extend to DMPC with partial information exchange.
+    \item Evaluate robustness with different communication graphs and delays.
+\end{enumerate}
+
+\section{Expected Contributions}
+
+\begin{itemize}
+    \item Comparison of different distributed control strategies
+    \item Theoretical analysis using the mathematical tools seen in ATIC
+    \item Novel application of distributed MPC to flexible membrane stabilization;
+    \item Modeling and simulation framework for cooperative UAV-membrane interaction;
+   
+\end{itemize}
+
+\end{document}
